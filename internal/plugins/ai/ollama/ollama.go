@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -37,6 +38,7 @@ func NewClient() (ret *Client) {
 	ret.ApiHttpTimeout = ret.AddSetupQuestionCustom("HTTP Timeout", true,
 		"Specify HTTP timeout duration for Ollama requests (e.g. 30s, 5m, 1h)")
 	ret.ApiHttpTimeout.Value = "20m"
+	ret.keepAlive = applyKeepAliveFromEnv()
 
 	return
 }
@@ -48,6 +50,7 @@ type Client struct {
 	apiUrl         *url.URL
 	client         *ollamaapi.Client
 	ApiHttpTimeout *plugins.SetupQuestion
+	keepAlive      *ollamaapi.Duration
 }
 
 type transport_sec struct {
@@ -159,6 +162,11 @@ func (o *Client) createChatRequest(msgs []*chat.ChatCompletionMessage, opts *dom
 		Messages: messages,
 		Options:  options,
 	}
+
+	if o.keepAlive != nil {
+		ret.KeepAlive = o.keepAlive
+	}
+
 	return
 }
 
@@ -174,4 +182,41 @@ func (o *Client) NeedsRawMode(modelName string) bool {
 		}
 	}
 	return false
+}
+
+func parseKeepAlive(ka string) (*ollamaapi.Duration, error) {
+	var d ollamaapi.Duration
+
+	if ka == "-1" {
+		d.Duration = -1
+		return &d, nil
+	}
+
+	if secs, perr := strconv.ParseInt(ka, 10, 64); perr == nil {
+		if secs < 0 {
+			d.Duration = -1
+		} else {
+			d.Duration = time.Duration(secs) * time.Second
+		}
+		return &d, nil
+	}
+
+	if dur, derr := time.ParseDuration(ka); derr == nil {
+		d.Duration = dur
+		return &d, nil
+	} else {
+		return nil, derr
+	}
+}
+
+func applyKeepAliveFromEnv() *ollamaapi.Duration {
+	ka := strings.TrimSpace(os.Getenv("OLLAMA_KEEP_ALIVE"))
+	if ka != "" {
+		if d, err := parseKeepAlive(ka); err == nil {
+			return d
+		} else {
+			fmt.Printf("Invalid OLLAMA_KEEP_ALIVE value %q; ignoring keep-alive. Error: %v\n", ka, err)
+		}
+	}
+	return nil
 }
