@@ -44,6 +44,7 @@ type Flags struct {
 	Copy                            bool              `short:"c" long:"copy" description:"Copy to clipboard"`
 	Model                           string            `short:"m" long:"model" yaml:"model" description:"Choose model"`
 	ModelContextLength              int               `long:"modelContextLength" yaml:"modelContextLength" description:"Model context length (only affects ollama)"`
+	ModelKeepAlive                  string            `long:"modelKeepAlive" yaml:"modelKeepAlive" description:"Control Ollama model keep-alive per request (e.g., -1, 300, 45m)"`
 	Output                          string            `short:"o" long:"output" description:"Output to file" default:""`
 	OutputSession                   bool              `long:"output-session" description:"Output the entire session (also a temporary one) to the output file"`
 	LatestPatterns                  string            `short:"n" long:"latest" description:"Number of latest patterns to list" default:"0"`
@@ -437,6 +438,7 @@ func (o *Flags) BuildChatOptions() (ret *domain.ChatOptions, err error) {
 		Raw:                 o.Raw,
 		Seed:                o.Seed,
 		ModelContextLength:  o.ModelContextLength,
+		ModelKeepAlive:      o.ModelKeepAlive,
 		Search:              o.Search,
 		SearchLocation:      o.SearchLocation,
 		ImageFile:           o.ImageFile,

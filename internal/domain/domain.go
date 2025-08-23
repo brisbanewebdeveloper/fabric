@@ -33,6 +33,7 @@ type ChatOptions struct {
 	Raw                 bool
 	Seed                int
 	ModelContextLength  int
+	ModelKeepAlive      string
 	MaxTokens           int
 	Search              bool
 	SearchLocation      string

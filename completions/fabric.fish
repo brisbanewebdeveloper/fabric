@@ -50,6 +50,7 @@ complete -c fabric -s P -l presencepenalty -d "Set presence penalty (default: 0.
 complete -c fabric -s F -l frequencypenalty -d "Set frequency penalty (default: 0.0)"
 complete -c fabric -s m -l model -d "Choose model" -a "(__fabric_get_models)"
 complete -c fabric -l modelContextLength -d "Model context length (only affects ollama)"
+complete -c fabric -l modelKeepAlive -d "Control Ollama model keep-alive per request (e.g., -1, 300, 45m)"
 complete -c fabric -s o -l output -d "Output to file" -r
 complete -c fabric -s n -l latest -d "Number of latest patterns to list (default: 0)"
 complete -c fabric -s y -l youtube -d "YouTube video or play list URL to grab transcript, comments from it"

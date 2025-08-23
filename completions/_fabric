@@ -70,6 +70,7 @@ _fabric() {
     '(-c --copy)'{-c,--copy}'[Copy to clipboard]' \
     '(-m --model)'{-m,--model}'[Choose model]:model:_fabric_models' \
     '(--modelContextLength)--modelContextLength[Model context length (only affects ollama)]:length:' \
+    '(--modelKeepAlive)--modelKeepAlive[Control Ollama model keep-alive per request (e.g., -1, 300, 45m)]:keepalive:' \
     '(-o --output)'{-o,--output}'[Output to file]:file:_files' \
     '(--output-session)--output-session[Output the entire session to the output file]' \
     '(-n --latest)'{-n,--latest}'[Number of latest patterns to list (default: 0)]:number:' \

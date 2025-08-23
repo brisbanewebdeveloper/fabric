@@ -146,6 +146,11 @@ func (o *Client) createChatRequest(msgs []*chat.ChatCompletionMessage, opts *dom
 		return ollamaapi.Message{Role: message.Role, Content: message.Content}
 	})
 
+	// Avoid inferring if "opts.ModelKeepAlive" is zero (Reasoning models start thinking otherwise)
+	if opts.ModelKeepAlive == "0" {
+		messages = []ollamaapi.Message{}
+	}
+
 	options := map[string]interface{}{
 		"temperature":       opts.Temperature,
 		"presence_penalty":  opts.PresencePenalty,
@@ -163,7 +168,14 @@ func (o *Client) createChatRequest(msgs []*chat.ChatCompletionMessage, opts *dom
 		Options:  options,
 	}
 
-	if o.keepAlive != nil {
+	// Apply keep-alive precedence: CLI flag (--modelKeepAlive) > env (OLLAMA_KEEP_ALIVE) > none
+	if strings.TrimSpace(opts.ModelKeepAlive) != "" {
+		if d, err := parseKeepAlive(strings.TrimSpace(opts.ModelKeepAlive)); err == nil {
+			ret.KeepAlive = d
+		} else {
+			fmt.Printf("Invalid --modelKeepAlive value %q; ignoring keep-alive. Error: %v\n", opts.ModelKeepAlive, err)
+		}
+	} else if o.keepAlive != nil {
 		ret.KeepAlive = o.keepAlive
 	}
 
